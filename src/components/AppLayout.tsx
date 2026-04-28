@@ -177,11 +177,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0 relative">
         {/* Mobile header */}
         <div className="md:hidden h-14 flex items-center justify-between px-4 border-b border-border/60 glass shrink-0">
-          <SheetTrigger asChild onClick={() => setMobileOpen(true)}>
-            <Button variant="ghost" size="icon" className="text-ice">
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
+          <Button variant="ghost" size="icon" className="text-ice" onClick={() => setMobileOpen(true)}>
+            <Menu className="size-5" />
+          </Button>
           <span className="font-display font-semibold">Fluere</span>
           <div className="size-9" />
         </div>
