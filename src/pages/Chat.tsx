@@ -148,7 +148,7 @@ export default function Chat() {
 
         <div className="px-4 md:px-12 pb-6 pt-2">
           <div className="max-w-3xl mx-auto">
-            <ChatInput onSend={send} disabled={streaming} />
+            <ChatInput onSend={send} streaming={streaming} onStop={stop} />
             <p className="text-center mt-3 text-[10px] text-muted-foreground/60 font-mono uppercase tracking-widest">
               Fluere may produce inaccurate insights · Always verify sources
             </p>
