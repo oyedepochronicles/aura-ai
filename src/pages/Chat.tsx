@@ -29,10 +29,22 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming]);
+
+  const stop = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    intervalRef.current = null;
+    timeoutRef.current = null;
+    setStreaming(false);
+  };
+
+  useEffect(() => () => stop(), []);
 
   const send = (text: string) => {
     if (!text) return;
@@ -46,15 +58,16 @@ export default function Chat() {
     const id = crypto.randomUUID();
     let i = 0;
     const placeholder: Message = { id, role: "assistant", content: "", timestamp: ts };
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       setMessages((m) => [...m, placeholder]);
-      const interval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         i += 6;
         setMessages((m) =>
           m.map((msg) => (msg.id === id ? { ...msg, content: sampleResponse.slice(0, i) } : msg))
         );
         if (i >= sampleResponse.length) {
-          clearInterval(interval);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          intervalRef.current = null;
           setMessages((m) =>
             m.map((msg) =>
               msg.id === id
