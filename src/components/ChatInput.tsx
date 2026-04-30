@@ -94,8 +94,8 @@ export function ChatInput({ onSend, disabled, streaming, onStop }: ChatInputProp
           value={value}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder={dragActive ? "Drop files here..." : "Evolve your thought..."}
-          disabled={disabled}
+          placeholder={dragActive ? "Drop files here..." : streaming ? "Generating response..." : "Evolve your thought..."}
+          disabled={disabled && !streaming}
           rows={1}
           className="w-full bg-transparent border-none outline-none resize-none px-3 py-2 text-ice placeholder:text-muted-foreground/60 font-light text-base max-h-[200px]"
         />
