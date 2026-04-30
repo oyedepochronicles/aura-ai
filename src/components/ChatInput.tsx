@@ -1,15 +1,17 @@
 import { useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Paperclip, Mic, ArrowUp, X, FileText } from "lucide-react";
+import { Paperclip, Mic, ArrowUp, X, FileText, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface ChatInputProps {
   onSend: (text: string, files?: File[]) => void;
   disabled?: boolean;
+  streaming?: boolean;
+  onStop?: () => void;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, streaming, onStop }: ChatInputProps) {
   const [value, setValue] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
