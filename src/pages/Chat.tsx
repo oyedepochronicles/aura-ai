@@ -29,10 +29,22 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming]);
+
+  const stop = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    intervalRef.current = null;
+    timeoutRef.current = null;
+    setStreaming(false);
+  };
+
+  useEffect(() => () => stop(), []);
 
   const send = (text: string) => {
     if (!text) return;
@@ -46,15 +58,16 @@ export default function Chat() {
     const id = crypto.randomUUID();
     let i = 0;
     const placeholder: Message = { id, role: "assistant", content: "", timestamp: ts };
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       setMessages((m) => [...m, placeholder]);
-      const interval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         i += 6;
         setMessages((m) =>
           m.map((msg) => (msg.id === id ? { ...msg, content: sampleResponse.slice(0, i) } : msg))
         );
         if (i >= sampleResponse.length) {
-          clearInterval(interval);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          intervalRef.current = null;
           setMessages((m) =>
             m.map((msg) =>
               msg.id === id
@@ -135,7 +148,7 @@ export default function Chat() {
 
         <div className="px-4 md:px-12 pb-6 pt-2">
           <div className="max-w-3xl mx-auto">
-            <ChatInput onSend={send} disabled={streaming} />
+            <ChatInput onSend={send} streaming={streaming} onStop={stop} />
             <p className="text-center mt-3 text-[10px] text-muted-foreground/60 font-mono uppercase tracking-widest">
               Fluere may produce inaccurate insights · Always verify sources
             </p>

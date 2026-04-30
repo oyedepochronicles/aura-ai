@@ -1,15 +1,17 @@
 import { useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Paperclip, Mic, ArrowUp, X, FileText } from "lucide-react";
+import { Paperclip, Mic, ArrowUp, X, FileText, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface ChatInputProps {
   onSend: (text: string, files?: File[]) => void;
   disabled?: boolean;
+  streaming?: boolean;
+  onStop?: () => void;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, streaming, onStop }: ChatInputProps) {
   const [value, setValue] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -92,8 +94,8 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           value={value}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder={dragActive ? "Drop files here..." : "Evolve your thought..."}
-          disabled={disabled}
+          placeholder={dragActive ? "Drop files here..." : streaming ? "Generating response..." : "Evolve your thought..."}
+          disabled={disabled && !streaming}
           rows={1}
           className="w-full bg-transparent border-none outline-none resize-none px-3 py-2 text-ice placeholder:text-muted-foreground/60 font-light text-base max-h-[200px]"
         />
@@ -132,17 +134,18 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
             type="button"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={handleSubmit}
-            disabled={disabled || (!value.trim() && files.length === 0)}
-            className="size-10 rounded-xl bg-gradient-flow flex items-center justify-center text-void shadow-flow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
-            aria-label="Send message"
+            onClick={streaming ? onStop : handleSubmit}
+            disabled={!streaming && (disabled || (!value.trim() && files.length === 0))}
+            className={cn(
+              "size-10 rounded-xl flex items-center justify-center transition-all",
+              streaming
+                ? "bg-destructive/90 text-destructive-foreground hover:bg-destructive shadow-elegant"
+                : "bg-gradient-flow text-void shadow-flow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed"
+            )}
+            aria-label={streaming ? "Stop generating" : "Send message"}
           >
-            {disabled ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="size-4 border-2 border-void/30 border-t-void rounded-full"
-              />
+            {streaming ? (
+              <Square className="size-3.5 fill-current" strokeWidth={0} />
             ) : (
               <ArrowUp className="size-4" strokeWidth={2.5} />
             )}
